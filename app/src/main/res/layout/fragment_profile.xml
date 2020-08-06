@@ -21,6 +21,16 @@
 
         <include layout="@layout/layout_center_profile" />
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="bottom"
+
+            app:layout_anchorGravity="center">
+
+            <include layout="@layout/layout_bottom_navigation_view" />
+        </RelativeLayout>
+
     </RelativeLayout>
 
     <ProgressBar
@@ -30,15 +40,5 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="100dp" />
 
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="bottom"
-
-        app:layout_anchorGravity="center">
-
-        <include layout="@layout/layout_bottom_navigation_view" />
-    </RelativeLayout>
 
 </RelativeLayout>

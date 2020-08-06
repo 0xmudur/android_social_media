@@ -11,9 +11,8 @@ public class UserAccountSettings {
     private String username;
     private String website;
 
-    public UserAccountSettings(
-            String description, String display_name, long followers, long following, long posts,
-            String profile_photo, String username, String website) {
+    public UserAccountSettings(String description, String display_name, long followers, long following,
+                               long posts, String profile_photo, String username, String website) {
         this.description = description;
         this.display_name = display_name;
         this.followers = followers;
@@ -22,6 +21,9 @@ public class UserAccountSettings {
         this.profile_photo = profile_photo;
         this.username = username;
         this.website = website;
+    }
+    public UserAccountSettings() {
+
     }
 
     public String getDescription() {
@@ -86,5 +88,20 @@ public class UserAccountSettings {
 
     public void setWebsite(String website) {
         this.website = website;
+    }
+
+
+    @Override
+    public String toString() {
+        return "UserAccountSettings{" +
+                "description='" + description + '\'' +
+                ", display_name='" + display_name + '\'' +
+                ", followers=" + followers +
+                ", following=" + following +
+                ", posts=" + posts +
+                ", profile_photo='" + profile_photo + '\'' +
+                ", username='" + username + '\'' +
+                ", website='" + website + '\'' +
+                '}';
     }
 }

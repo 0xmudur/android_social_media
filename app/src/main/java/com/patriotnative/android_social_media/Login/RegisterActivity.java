@@ -21,9 +21,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.patriotnative.android_social_media.R;
 import com.patriotnative.android_social_media.Utils.FirebaseMethods;
+import com.patriotnative.android_social_media.models.User;
 
 import java.util.HashMap;
 
@@ -39,11 +41,13 @@ public class RegisterActivity extends AppCompatActivity {
     private Button btnRegister;
     private ProgressBar mProgressBar;
 
+    //firebase
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private FirebaseMethods firebaseMethods;
     private FirebaseDatabase mFirebaseDatabase;
     private DatabaseReference myRef;
+
     private String append = "";
 
 
@@ -60,7 +64,7 @@ public class RegisterActivity extends AppCompatActivity {
         init();
     }
 
-    private void init() {
+    private void init(){
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -68,41 +72,102 @@ public class RegisterActivity extends AppCompatActivity {
                 username = mUsername.getText().toString();
                 password = mPassword.getText().toString();
 
-                if (checkInputs(email, username, password)) {
+                if(checkInputs(email, username, password)){
                     mProgressBar.setVisibility(View.VISIBLE);
                     loadingPleaseWait.setVisibility(View.VISIBLE);
 
-                    firebaseMethods.registerNewEmail(email, password);
+                    firebaseMethods.registerNewEmail(email, password, username);
                 }
             }
         });
     }
 
-    private boolean checkInputs(String email, String username, String password) {
+    private boolean checkInputs(String email, String username, String password){
         Log.d(TAG, "checkInputs: checking inputs for null values.");
-        if (email.equals("") || username.equals("") || password.equals("")) {
+        if(email.equals("") || username.equals("") || password.equals("")){
             Toast.makeText(mContext, "All fields must be filled out.", Toast.LENGTH_SHORT).show();
             return false;
         }
         return true;
     }
-
-    private void initWidgets() {
+    /**
+     * Initialize the activity widgets
+     */
+    private void initWidgets(){
         Log.d(TAG, "initWidgets: Initializing Widgets.");
-        mEmail =  findViewById(R.id.input_email);
-        mUsername =  findViewById(R.id.input_username);
-        btnRegister =  findViewById(R.id.btn_register);
-        mProgressBar =  findViewById(R.id.progressBar);
-        loadingPleaseWait =  findViewById(R.id.loadingPleaseWait);
-        mPassword = findViewById(R.id.input_password);
+        mEmail = (EditText) findViewById(R.id.input_email);
+        mUsername = (EditText) findViewById(R.id.input_username);
+        btnRegister = (Button) findViewById(R.id.btn_register);
+        mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+        loadingPleaseWait = (TextView) findViewById(R.id.loadingPleaseWait);
+        mPassword = (EditText) findViewById(R.id.input_password);
         mContext = RegisterActivity.this;
         mProgressBar.setVisibility(View.GONE);
         loadingPleaseWait.setVisibility(View.GONE);
 
     }
 
+    private boolean isStringNull(String string){
+        Log.d(TAG, "isStringNull: checking string if null.");
 
-    private void setupFirebaseAuth() {
+        if(string.equals("")){
+            return true;
+        }
+        else{
+            return false;
+        }
+    }
+
+     /*
+    ------------------------------------ Firebase ---------------------------------------------
+     */
+
+    /**
+     * Check is @param username already exists in teh database
+     * @param username
+     */
+    private void checkIfUsernameExists(final String username) {
+        Log.d(TAG, "checkIfUsernameExists: Checking if  " + username + " already exists.");
+
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
+        Query query = reference
+                .child(getString(R.string.dbname_users))
+                .orderByChild(getString(R.string.field_username))
+                .equalTo(username);
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                for(DataSnapshot singleSnapshot: dataSnapshot.getChildren()){
+                    if (singleSnapshot.exists()){
+                        Log.d(TAG, "checkIfUsernameExists: FOUND A MATCH: " + singleSnapshot.getValue(User.class).getUsername());
+                        append = myRef.push().getKey().substring(3,10);
+                        Log.d(TAG, "onDataChange: username already exists. Appending random string to name: " + append);
+                    }
+                }
+
+                String mUsername = "";
+                mUsername = username + append;
+
+                //add new user to the database
+                firebaseMethods.addNewUser(email, mUsername, "", "", "");
+
+                Toast.makeText(mContext, "Signup successful. Sending verification email.", Toast.LENGTH_SHORT).show();
+
+                mAuth.signOut();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    /**
+     * Setup the firebase auth object
+     */
+    private void setupFirebaseAuth(){
         Log.d(TAG, "setupFirebaseAuth: setting up firebase auth.");
 
         mAuth = FirebaseAuth.getInstance();
@@ -121,18 +186,7 @@ public class RegisterActivity extends AppCompatActivity {
                     myRef.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            //1st check: Make sure the username is not already in use
-                            if (firebaseMethods.checkIfUsernameExists(username, dataSnapshot)) {
-                                append = myRef.push().getKey().substring(3, 10);
-                                Log.d(TAG, "onDataChange: username already exists. Appending random string to name: " + append);
-                            }
-                            username = username + append;
-
-                            //add new user to the database
-                            firebaseMethods.addNewUser(email, username, "", "", "");
-
-                            Toast.makeText(mContext, "Signup successful. Sending verification email.", Toast.LENGTH_SHORT).show();
-                            mAuth.signOut();
+                            checkIfUsernameExists(username);
                         }
 
                         @Override

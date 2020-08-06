@@ -18,7 +18,7 @@ import com.patriotnative.android_social_media.R;
 
 public class UniversalImageLoader {
 
-    private static final int defaultImage = R.drawable.ic_image;
+    private static final int defaultImage = R.drawable.ic_profile;
     private Context mContext;
 
     public UniversalImageLoader(Context context) {
@@ -52,7 +52,6 @@ public class UniversalImageLoader {
      * @param mProgressBar
      * @param append
      */
-
     public static void setImage(String imgURL, ImageView image, final ProgressBar mProgressBar, String append){
 
         ImageLoader imageLoader = ImageLoader.getInstance();

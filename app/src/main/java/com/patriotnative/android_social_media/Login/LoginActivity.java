@@ -121,7 +121,7 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        TextView linkSignUp = (TextView) findViewById(R.id.link_signup);
+        TextView linkSignUp =  findViewById(R.id.link_signup);
         linkSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -140,7 +140,6 @@ public class LoginActivity extends AppCompatActivity {
             finish();
         }
     }
-
 
     private void setupFirebaseAuth() {
         mAuth = FirebaseAuth.getInstance();

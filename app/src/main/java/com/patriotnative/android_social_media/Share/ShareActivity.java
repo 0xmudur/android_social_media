@@ -2,35 +2,51 @@ package com.patriotnative.android_social_media.Share;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.tabs.TabLayout;
 import com.patriotnative.android_social_media.R;
 import com.patriotnative.android_social_media.Utils.BottomNavigationViewHelper;
+import com.patriotnative.android_social_media.Utils.SectionPagerAdapter;
 
 public class ShareActivity extends AppCompatActivity {
     private static final String TAG = "ShareActivity";
-    private static final int ACTIVITY_NUM = 2;
+
+    private ViewPager mViewPager;
+
     private Context mContext = ShareActivity.this;
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home);
-        setupBottomNavigationView();
+        setContentView(R.layout.activity_share);
+        Log.d(TAG, "onCreate: started.");
+
+        setupViewPager();
     }
 
-    private void setupBottomNavigationView() {
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottomNavViewBar);
+    private void setupViewPager() {
+        SectionPagerAdapter adapter = new SectionPagerAdapter(getSupportFragmentManager());
+        adapter.addFragment(new GalleryFragment());
+        adapter.addFragment(new PhotoFragment());
 
-        BottomNavigationViewHelper.enableNavigation(mContext, bottomNavigationView);
+        mViewPager =  findViewById(R.id.container);
+        mViewPager.setAdapter(adapter);
 
-        Menu menu = bottomNavigationView.getMenu();
-        MenuItem menuItem = menu.getItem(ACTIVITY_NUM);
-        menuItem.setChecked(true);
+        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabsBottom);
+        tabLayout.setupWithViewPager(mViewPager);
+
+        tabLayout.getTabAt(0).setText(getString(R.string.gallery));
+        tabLayout.getTabAt(1).setText(getString(R.string.photo));
+
     }
+
+
 }
